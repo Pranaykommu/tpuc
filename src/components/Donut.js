@@ -34,13 +34,22 @@ const test_data = [ {
 }, 
 ];
 const vehicle_data = [ {
-  "kind": "2 -W", "share": 0.175, "color": "#832bff"
+  "kind": "BSI", "share": 0.175, "color": "#832bff"
 }, 
 {
-  "kind": "Passenger Cars", "share": 0.238, "color": "#2bffdf"
+  "kind": "BSVI", "share": 0.238, "color": "#2bffdf"
 },
 {
-  "kind": "Commercial", "share": 0.118, "color": "#c6ff2b"
+  "kind": "BSV", "share": 0.118, "color": "#c6ff2b"
+}, 
+{
+  "kind": "BSIV", "share": 0.118, "color": "#a89532"
+}, 
+{
+  "kind": "BSII", "share": 0.118, "color": "#c6ff2b70"
+}, 
+{
+  "kind": "BSIII", "share": 0.118, "color": "#ff3838"
 }, 
 ];
 const { state: { mode }, signin } = useContext(AuthContext);
@@ -54,15 +63,15 @@ const [show, setShow] = useState('Fuel');
                         <Button onClick={()=>{
                             //
                             setShow('Fuel');
-                        }} style={{ backgroundColor: show==='Fuel' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#ffffff' }}>   Fuel   </Button>
+                        }} style={{ backgroundColor: show==='Fuel' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#fafafa' }}>   Fuel   </Button>
                         <Button onClick={()=>{
                             //
                             setShow('Test Result');
-                        }} style={{ backgroundColor: show==='Test Result' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252526' : '#ffffff' }}>Test Result</Button>
+                        }} style={{ backgroundColor: show==='Test Result' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252526' : '#fafafa' }}>Test Result</Button>
                         <Button onClick={()=>{
                             //
                             setShow('Vehicle');
-                        }} style={{ backgroundColor: show==='Vehicle' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252526' : '#ffffff' }}> Vehicle </Button>
+                        }} style={{ backgroundColor: show==='Vehicle' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252526' : '#fafafa' }}> Emission Norms </Button>
                     </ButtonGroup>
                 </div>
                 <div style={{ height: '50%', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F500' : '#1e1e1e00', marginBottom: 20, marginTop: 20 }}>

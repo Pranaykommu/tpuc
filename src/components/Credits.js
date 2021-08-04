@@ -73,21 +73,7 @@ const CssTextField = withStyles({
                 </div>
                 <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row' }}>
                             <Button onClick={async()=>{
-                            //  signin({ username: email, password: password })
-                            /*   await axios.post(`http://13.233.138.227:8080/puc-certificate-services/login?username=${email}&password=${password}`).then((response)=>{
-                                    console.log('resp', response);
-                                    if(response.data==='success'){
-                                    //set token
-                                        setPassword('');
-                                        setEmail('');
-                                    } else {
-                                        setPassword('');
-                                        setEmail('');
-                                        alert(`err occurred`);
-                                    }
-                                }).catch((err)=>{
-                                    alert('error occurred')
-                                });*/
+                              alert('payment link is sent to operator')
                             }} style={{ backgroundColor:mode==='Light Mode' ? '#f3f3f5' :   '#7f7f7f', borderColor:mode==='Light Mode' ? '#FAFAFA' : '#252526', width: '100%', height: '40px', marginTop: 20 }}>Pay ₹ {credit*200}</Button>
                         </div>
                 <div style={{ height: '50%', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#1e1e1e', marginBottom: 20, marginTop: 20 }}>

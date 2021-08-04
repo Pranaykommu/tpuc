@@ -1,16 +1,20 @@
 import React, { useContext, useRef, useState } from 'react';
 //import { NavLink } from 'react-router-dom';
 import { Modal } from 'react-bootstrap';
-import axios from 'axios';
+import pic3 from '../Assets/5.jpg';
+import pic2 from '../Assets/3.jpg';
+import pic1 from '../Assets/4.jpg';
+import pic from '../Assets/2.jpeg';
 import { Context as AuthContext } from '../context/AuthContext';
-import { ButtonGroup, FormControl, IconButton, InputAdornment, InputLabel, makeStyles, OutlinedInput, TextField, withStyles, Button, FilledInput, Grid, Paper } from '@material-ui/core';
-import { DataGrid, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import { ButtonGroup, FormControl, InputLabel, makeStyles, TextField, withStyles, Button, FilledInput, Grid, } from '@material-ui/core';
 import Webcam from "react-webcam";
 import clsx from 'clsx';
 import Donut from './Donut';
 import Bar from './Bar';
 import Credits from './Credits';
 import Tabe from './Tabe';
+import Complaint from './Complaint';
+import TDonut from './TDonut';
 const useStyles = makeStyles((theme) => ({
     root: {
       display: 'flex',
@@ -32,7 +36,11 @@ const useStyles = makeStyles((theme) => ({
 export default function Home(){
     const [image, setImage] = useState(null);
     const webcamRef = useRef(null);
-    const [phone, setPhone] = useState('');
+    const { state: { mode, profile, token, pmodal, verified, vehicle, bar, donut }, refreshPuc, signin, getOtp, testToken, pucModal, verifyOtp, getBar, getDonut } = useContext(AuthContext);
+    const [phone, setPhone] = useState(null);
+    const [vehicleNum, setVehicleNum] = useState(null);
+    const [lat, setLat] = useState(19.038190670441264);
+    const [long, setLong] = useState(86760978120125);
     const [modal, setModal] = useState(false);
     const [otp, setOtp] = useState('')
     const [success, setSuccess] = useState(false);
@@ -40,14 +48,14 @@ export default function Home(){
     const [reports, setReports] = useState(false);
     const [credits, setCredits] = useState(false);
     const [history, setHistory] = useState(false);
-    const [show, setShow] = useState('Reports');
+    const [show, setShow] = useState(profile!=null && profile.role==='DEALER' ? 'PUC' : null);
     const [user, setUser] = useState('Operator');
     const [fetc, setFetc] = useState(false);
     const [fetcReports, setFetcReports] = useState(false);
     const [fetcHistory, setFetcHistory] = useState(false);
     const [fetcCredits, setFetcCredits] = useState(false);
   //  const [scrolled, setScrolled] = useState(false);
-    const { state: { mode }, signin } = useContext(AuthContext);
+    console.log('profile is: ',profile );
     console.log('mode from home is', mode);
 
     const classes = useStyles();
@@ -74,33 +82,20 @@ export default function Home(){
       })(TextField);
     return(
         <div className='signup-form'>
-            <div style={{ height: '100px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', }}>
-                    <ButtonGroup  style={{ margin: '0 auto', marginTop: '50px', marginBottom: '50px' }} color="primary" aria-label="outlined primary button group">
-                        <Button onClick={()=>{
-                            //
-                            setUser('Admin');
-                        }} style={{ backgroundColor: show==='Admin' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Admin</Button>
-                        <Button onClick={()=>{
-                            //
-                            setUser('RTO');
-                        }} style={{ backgroundColor: show==='RTO' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>RTO</Button>
-                        <Button onClick={()=>{
-                            //
-                            setUser('Operator');
-                        }} style={{ backgroundColor: show==='Operator' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Operator</Button>
-                    </ButtonGroup>
-                </div>
-            {user==='Operator' ?
+            {profile!=null && profile.role==='DEALER'/* user==='Operator'*/ ?
             (<div style={{ height: '1000px', width: '100%', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', margin: '0 auto' }}>
                 <div style={{ height: '100px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', }}>
                     <ButtonGroup  style={{ margin: '0 auto', marginTop: '50px', }} color="primary" aria-label="outlined primary button group">
                         <Button onClick={()=>{
                             //
                             setShow('PUC');
+                            //pucModal()
                         }} style={{ backgroundColor: show==='PUC' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>PUC</Button>
-                        <Button onClick={()=>{
+                        <Button onClick={async()=>{
                             //
-                            setShow('Reports');
+                            await getBar('MONTH');
+                            await getDonut();
+                            await setShow('Reports');
                         }} style={{ backgroundColor: show==='Reports' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Reports</Button>
                         <Button onClick={()=>{
                             //
@@ -112,16 +107,17 @@ export default function Home(){
                         }} style={{ backgroundColor: show==='History' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>History</Button>
                     </ButtonGroup>
                 </div>
-                {show==='PUC' ? fetc===false ? 
+                {show==='PUC' ? vehicle===null ? 
                 (
-                        <div style={{ height: /*fetc===false ? '700px' : */'600px', width: '70%', backgroundColor: mode==='Light Mode' ? '#ffffff' : '#1e1e1e', margin: '0 auto', marginBottom: 30 }}>
+                        <div style={{ height: /*fetc===false ? '700px' : */'700px', width: '70%', margin: '0 auto', backgroundColor: mode==='Light Mode' ? '#ffffff' : '#1e1e1e', margin: '0 auto', marginBottom: 30 }}>
                         <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row', }}>
-                            <FormControl className={clsx(classes.margin, classes.textField)} variant='filled'>
-                                <InputLabel style={{ color: mode==='Light Mode' ? '#252526' : '#fafafa', borderColor: '#FAFAFA' }} htmlFor="outlined-adornment-password">Phone Number</InputLabel>
+                            <FormControl required className={clsx(classes.margin, classes.textField)} variant='filled'>
+                                <InputLabel  style={{ color: mode==='Light Mode' ? '#252526' : '#fafafa', borderColor: '#FAFAFA' }} htmlFor="outlined-adornment-password">Phone Number</InputLabel>
                                 <FilledInput
                                     style={{ backgroundColor: mode==='Light Mode' ? '#fafafa' : '#252526', color: mode==='Light Mode' ? '#252526' : '#fafafa' }}
                                     id="outlined-adornment-password"
                                     type='text'
+                                    
                                     value={phone}
                                     autoComplete={false}
                                     autoCorrect={false}
@@ -130,17 +126,34 @@ export default function Home(){
                                 />
                                 </FormControl>
                         </div>
-                        <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row' }}>
-                            <FormControl className={clsx(classes.margin, classes.textField)} variant='filled'>
-                                <InputLabel style={{ color: mode==='Light Mode' ? '#252526' : '#fafafa', borderColor: '#FAFAFA' }} htmlFor="outlined-adornment-password">Vehicle Number</InputLabel>
+                        <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row', }}>
+                            <FormControl required={verified===false ? false : true} className={clsx(classes.margin, classes.textField)} variant='filled'>
+                                <InputLabel  style={{ color: mode==='Light Mode' ? '#252526' : '#fafafa', borderColor: '#FAFAFA' }} htmlFor="outlined-adornment-password">OTP</InputLabel>
                                 <FilledInput
                                     style={{ backgroundColor: mode==='Light Mode' ? '#fafafa' : '#252526', color: mode==='Light Mode' ? '#252526' : '#fafafa' }}
                                     id="outlined-adornment-password"
                                     type='text'
-                                    value={phone}
+                                    
+                                    value={otp}
                                     autoComplete={false}
                                     autoCorrect={false}
-                                    onChange={(e)=>setPhone(e.target.value)}
+                                    onChange={(e)=>setOtp(e.target.value)}
+                                    labelWidth={80}
+                                />
+                                </FormControl>
+                        </div>
+                        <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row', }}>
+                            <FormControl required className={clsx(classes.margin, classes.textField)} variant='filled'>
+                                <InputLabel style={{ color: mode==='Light Mode' ? '#252526' : '#fafafa', borderColor: '#FAFAFA' }} htmlFor="outlined-adornment-password">Vehicle Reg. Number</InputLabel>
+                                <FilledInput
+                                    style={{ backgroundColor: mode==='Light Mode' ? '#fafafa' : '#252526', color: mode==='Light Mode' ? '#252526' : '#fafafa' }}
+                                    id="outlined-adornment-password"
+                                    type='text'
+                                    
+                                    value={vehicleNum}
+                                    autoComplete={false}
+                                    autoCorrect={false}
+                                    onChange={(e)=>setVehicleNum(e.target.value)}
                                     labelWidth={80}
                                 />
                                 </FormControl>
@@ -165,27 +178,32 @@ export default function Home(){
                             )
                             }
                         </div>
-                        {image!=null ? fetc===false ?
+                        {image!=null && verified===false && phone!=null && vehicleNum!=null && phone.length===10 && vehicleNum.length>0 ?
                         <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row' }}>
                             <Button onClick={async()=>{
-                            setModal(true)
-                            //  signin({ username: email, password: password })
-                            /*   await axios.post(`http://13.233.138.227:8080/puc-certificate-services/login?username=${email}&password=${password}`).then((response)=>{
-                                    console.log('resp', response);
-                                    if(response.data==='success'){
-                                    //set token
-                                        setPassword('');
-                                        setEmail('');
-                                    } else {
-                                        setPassword('');
-                                        setEmail('');
-                                        alert(`err occurred`);
+                                    await navigator.geolocation.getCurrentPosition((position)=>{
+                                        setLat(position.coords.latitude);
+                                        setLong(position.coords.longitude);
+                                    });
+                                    if(lat!=null && long!=null){
+                                            console.log('hi there');
+                                            getOtp({ phone, vehicleNum, lat, long });
                                     }
-                                }).catch((err)=>{
-                                    alert('error occurred')
-                                });*/
+                            }} style={{ backgroundColor:mode==='Light Mode' ? '#f3f3f5' :   '#7f7f7f', borderColor:mode==='Light Mode' ? '#FAFAFA' : '#252526', width: '100%', height: '40px', marginTop: 20 }}>Get OTP</Button>
+                        </div> : null}
+                        {image!=null && verified===true && phone!=null && vehicleNum!=null && phone.length===10 && vehicleNum.length>0 && otp.length===6 ?
+                        <div className="input-group" style={{ margin: '0 auto', width: '35%', textAlign: 'center', flexDirection: 'row' }}>
+                            <Button onClick={async()=>{
+                                    await navigator.geolocation.getCurrentPosition((position)=>{
+                                        setLat(position.coords.latitude);
+                                        setLong(position.coords.longitude);
+                                    });
+                                    if(lat!=null && long!=null){
+                                        console.log('no there');
+                                        verifyOtp({ phone, vehicleNum, lat, long, otp })
+                                    }
                             }} style={{ backgroundColor:mode==='Light Mode' ? '#f3f3f5' :   '#7f7f7f', borderColor:mode==='Light Mode' ? '#FAFAFA' : '#252526', width: '100%', height: '40px', marginTop: 20 }}>Continue</Button>
-                        </div> : null : null}
+                        </div> : null}
                 </div>
                 )
                 :
@@ -195,30 +213,30 @@ export default function Home(){
                                 <Grid item xs={4}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30 }}>Phone Number</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30 }}>Vehicle Reg. Number</Button>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30 }}>Vehicle Number</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30 }}>Engine Number</Button>
                                     <Button onClick={()=>{
                                         //
                                     }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>Chasis Number</Button>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>Year of Regn</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>Year of Regn.</Button>
                                 </Grid>
                                 <Grid item xs={4}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30  }}>9618625767</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30  }}>{vehicle.regNumber}</Button>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30  }}>AP 29 AW 8033</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 30  }}>{vehicle.engineNumber}</Button>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>APAW8033AP29AW8033</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>{vehicle.chasisNumber}</Button>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>2012</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', marginTop: 10  }}>{vehicle.regDate}</Button>
                                 </Grid>
                                 <Grid item xs={4}>
                                     <img   
@@ -232,22 +250,22 @@ export default function Home(){
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', }}>Type of Vehicle</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%', }}>Vehicle Class</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>2 Wheeler</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>{vehicle.vehicleClass}</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Type of Engine</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#1e1e1e'  : 'transparent', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Emission Norms</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>2 Stroke</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>{vehicle.emissionNorms}</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
@@ -257,7 +275,7 @@ export default function Home(){
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Honda</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>{vehicle.vehicleMake}</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
@@ -267,7 +285,7 @@ export default function Home(){
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Activa</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>{vehicle.model}</Button>
                                 </Grid>
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
@@ -277,7 +295,7 @@ export default function Home(){
                                 <Grid item xs={3}>
                                     <Button onClick={()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Petrol</Button>
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>{vehicle.fuelType}</Button>
                                 </Grid>
                                 <Grid item xs={6}>
                                 </Grid>
@@ -348,9 +366,15 @@ export default function Home(){
                                 <Grid item xs={2}>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Button onClick={()=>{
+                                    <Button onClick={async()=>{
                                         //
-                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Test Result ? </Button>
+                                        alert('printing certificate and refreshing')
+                                        setOtp(null);
+                                        setPhone(null);
+                                        setVehicleNum(null);
+                                        setImage(null);
+                                        await refreshPuc();
+                                    }} style={{ backgroundColor: mode==='Dark Mode' ? '#252526'  : '#fafafa', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', width: '100%' }}>Test Result ? Pass</Button>
                                 </Grid>
                             </Grid>
                         </div>
@@ -397,12 +421,59 @@ export default function Home(){
             </div>)
             : null
             }
-            {user==='RTO' ?
+            {profile!=null && profile.role==='THEFT'/* user==='Theft'*/ ?
             (<div style={{ height: '1000px', width: '100%', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', margin: '0 auto' }}>
                 <div style={{ height: '100px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526' }}>
                     <ButtonGroup  style={{ margin: '0 auto', marginTop: '50px', }} color="primary" aria-label="outlined primary button group">
                         <Button onClick={()=>{
                             //
+                            setShow('Complaint');
+                        }} style={{ backgroundColor: show==='Complaint' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Complaint</Button>
+                        <Button onClick={async()=>{
+                            //
+                            await getBar('MONTH');
+                            await getDonut();
+                            setShow('Reports');
+                        }} style={{ backgroundColor: show==='Reports' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Reports</Button>
+                    </ButtonGroup>
+                </div>
+                {show==='Complaint' ? fetcCredits===false ? 
+                (
+                <div style={{ height: /*fetc===false ? '700px' : */'600px', width: '70%', backgroundColor: mode==='Light Mode' ? '#ffffff' : '#1e1e1e', margin: '0 auto', marginBottom: 30 }}>
+                    <Complaint />
+                </div>)
+                :
+                (
+                <div>
+                </div>
+                ) : null}
+                {show==='Reports' ? fetcReports===false ? 
+                (
+                <div style={{ height: /*fetc===false ? '700px' : */'700px', width: '70%', backgroundColor: mode==='Light Mode' ? '#ffffff' : '#1e1e1e', margin: '0 auto', marginBottom: 30 }}>
+                <div className="input-group" style={{ margin: '0 auto', width: '100%', height: '100%', textAlign: 'center', }}>
+                    <Grid style={{ marginTop: '150px', height: '100%', width: '100%',margin: '0 auto', }} container spacing={3}>
+                    <Grid item xs={12}>
+                        <TDonut />
+                    </Grid>
+                   </Grid>
+                   </div>
+                </div>)
+                :
+                (
+                <div>
+                </div>
+                ) : null}
+            </div>)
+            : null
+            }
+            {profile!=null && profile.role==='RTO'/* user==='RTO'*/ ?
+            (<div style={{ height: '1000px', width: '100%', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', margin: '0 auto' }}>
+                <div style={{ height: '100px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526' }}>
+                    <ButtonGroup  style={{ margin: '0 auto', marginTop: '50px', }} color="primary" aria-label="outlined primary button group">
+                        <Button onClick={async()=>{
+                            //
+                            await getBar('MONTH');
+                            await getDonut();
                             setShow('Reports');
                         }} style={{ backgroundColor: show==='Reports' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Reports</Button>
                         <Button onClick={()=>{
@@ -457,7 +528,7 @@ export default function Home(){
             </div>)
             : null
             }
-            {user==='Admin' ?
+            {profile!=null && profile.role==='ADMIN'/* user==='Admin'*/ ?
             (<div style={{ height: '1000px', width: '100%', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526', margin: '0 auto' }}>
                 <div style={{ height: '100px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F5' : '#252526' }}>
                     <ButtonGroup  style={{ margin: '0 auto', marginTop: '50px', }} color="primary" aria-label="outlined primary button group">
@@ -465,8 +536,10 @@ export default function Home(){
                             //
                             setShow('RManage');
                         }} style={{ backgroundColor: show==='RManage' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Manage RTO</Button>
-                        <Button onClick={()=>{
+                        <Button onClick={async()=>{
                             //
+                            await getBar('MONTH');
+                            await getDonut();
                             setShow('Reports');
                         }} style={{ backgroundColor: show==='Reports' ? mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' : mode==='Dark Mode' ? '#252526' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#1e1e1e' : '#ffffff' }}>Reports</Button>
                         <Button onClick={()=>{
@@ -531,23 +604,25 @@ export default function Home(){
             </div>)
             : null
             }
-            <Modal show={modal} onHide={()=> setModal(false)}>
-                <Modal.Header closeButton onClick={()=>setModal(false)} />
-                {success===true ? (<div style={{ backgroundColor: '#ffffff', height: '400px', margin: '0 auto', width: '300px', textAlign: 'center' }}>
+            <Modal size='xl' show={pmodal} onHide={()=> setModal(false)}>
+                {success===true ? (<div style={{ backgroundColor: mode==='Light Mode' ? '#ffffff' : '#1e1e1e', height: '400px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
                     <span style={{ fontSize: '17px', marginTop: '90px', color: '#32a852' }}>
                         Congratulations, {phone} is added to the firstlist and please wait till our next update
                     </span>
                 </div>) :
                 (
-                <div style={{ backgroundColor: '#ffffff', height: '400px', margin: '0 auto', width: '300px', textAlign: 'center' }}>
-                    <h5 style={{ marginTop: '90px' }}>
-                        Enter Your One Time Password sent to {phone}
-                    </h5>
+                <div style={{ backgroundImage: `url(${pic1})`, backgroundColor: mode==='Light Mode' ? '#ffffff00' : '#fafafa00', height: '800px', margin: '0 auto', width: '100%', textAlign: 'center', }}>
+                <div style={{ backgroundColor: mode==='Light Mode' ? '#ffffff' : '#fafafa', height: '60%', margin: '0 auto', width: '70%', textAlign: 'center', }}>
+                    <h5 style={{ margin: '0 auto', width: '300px', marginTop: '91px', color: 'transparent' }}>..</h5>
+                    <h5 style={{ margin: '0 auto', width: '300px', marginTop: '15px', marginBottom: '91px' }}>New Test</h5>
                     <div style={{ margin: '0 auto', width: '300px', textAlign: 'center', }}>
-                        <input inputMode='tel' type="number" className="form-control" name="mobile" placeholder="OTP" required="required" value={otp} onChange={e=>setOtp(e.target.value)} />
+                        <input inputMode='tel' type="number" maxLength={10} className="form-control" name="mobile" placeholder="Phone Number" required="required" value={phone} onChange={e=>setPhone(e.target.value)} />
                     </div>
-                    {otp!=null && otp.length===6 ?
-                    (<div style={{ margin: '0 auto', marginTop: '5px', width: '300px', textAlign: 'center' }}>
+                    <div style={{ margin: '0 auto', width: '300px', textAlign: 'center', marginTop: '20px' }}>
+                        <input inputMode='tel' type='text' className="form-control" name="mobile" placeholder="Vehicle Reg. Number" required="required" value={vehicleNum} onChange={e=>setVehicleNum(e.target.value)} />
+                    </div>
+                    {phone!=null && vehicleNum!=null && phone.length===10 ?
+                    (<div style={{ margin: '0 auto', marginTop: '55px', width: '300px', textAlign: 'center' }}>
                         <Button onClick={async()=>{
                             setModal(false)
                             setFetc(true)
@@ -569,8 +644,9 @@ export default function Home(){
                             }).catch((err)=>{
                                 alert('error occurred')
                             });*/
-                        }} variant="success">Join the Firstlist</Button>
+                        }} style={{ backgroundColor: '#00000050', width: '100%' }}>    Continue    </Button>
                     </div>) : null}
+                </div>
                 </div>)}
             </Modal>
         </div>

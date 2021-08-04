@@ -39,15 +39,15 @@ const { state: { mode }, signin } = useContext(AuthContext);
                         <Button onClick={()=>{
                             //
                             setShow('daily');
-                        }} style={{ backgroundColor: show==='daily' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#ffffff' }}>Last 7 days</Button>
+                        }} style={{ backgroundColor: show==='daily' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#fafafa' }}>Last 7 days</Button>
                         <Button onClick={()=>{
                             //
                             setShow('monthly');
-                        }} style={{ backgroundColor: show==='monthly' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#ffffff' }}>Monthly</Button>
+                        }} style={{ backgroundColor: show==='monthly' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#fafafa' }}>Monthly</Button>
                         <Button onClick={()=>{
                             //
                             setShow('yearly');
-                        }} style={{ backgroundColor: show==='yearly' ? mode==='Dark Mode' ? '#252526' : '#ffffff' : mode==='Dark Mode' ? '#1e1e1e' : '#fafafa99', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#ffffff' }}>Yearly</Button>
+                        }} style={{ backgroundColor: show==='yearly' ? mode==='Dark Mode' ? '#252526' : '#fafafa' : mode==='Dark Mode' ? '#1e1e1e' : '#ffffff', color: mode==='Light Mode' ? '#252526' : '#f3f3f599', borderColor: mode==='Dark Mode' ? '#252525' : '#fafafa' }}>Yearly</Button>
                     </ButtonGroup>
                 </div>
                 <div style={{ height: '250px', width: '100%',textAlign: 'center', margin: '0 auto', justifyContent: 'center', alignItems: 'center', backgroundColor: mode==='Light Mode' ? '#F3F3F500' : '#1e1e1e00', marginBottom: 20, marginTop: 20 }}>

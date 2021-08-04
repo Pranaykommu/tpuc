@@ -18,50 +18,17 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 export default function Login(){
-
-
-  useEffect(() => {
-    (async () => {
-     // if ("serial" in navigator) {
-        //
-       // alert('hiiii')
-      //  await navigator.serial.requestPort();
-       //console.log('port:  ', serial);
-     // }
-    })();
-  }, []);
-  /*
-useEffect(()=>{
-
-  if("serial" in navigator){
-    window.alert("Serial suported");
-    const ports = navigator.serial.getPorts();
-    window.alert("ports" + ports);
-  } else {
-    window.alert("Not supported");
-  }
-
-  // RNSerialport.getDeviceList((response) => {
-  //   if (!response.status) {
-  //     response.log("Error from getDeviceList()", response.errorCode + " " + response.errorMessage)
-  //     return;
-  //   }
-  //   console.log(response.devices)//list
-  // });
-},[])
-
-*/
+  const { state: { mode }, login } = useContext(AuthContext);
 
 
     const [interfaceNumber, setInterfaceNumber] = useState(null);
     const [endpointIn, setEndpointIn] = useState(null);
     const [endpointOut, setEndpointOut] = useState(null);
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [modal, setModal] = useState(false);
    const [otp, setOtp] = useState('');
     const [success, setSuccess] = useState(false);
     const [password, setPassword] = useState('')
-    const { state: { mode }, signin } = useContext(AuthContext);
     console.log('mode from login is', mode);
     const [showPassword, setShowPassword] = useState(false);
     const classes = useStyles();
@@ -111,9 +78,9 @@ useEffect(()=>{
                                     style={{ backgroundColor: mode==='Light Mode' ? '#fafafa' : '#FAFAFA' }}
                                     id="outlined-adornment-password"
                                     type='text'
-                                    value={email}
+                                    value={username}
                                     autoComplete='none'
-                                    onChange={(e)=>setEmail(e.target.value)}
+                                    onChange={(e)=>setUsername(e.target.value)}
                                     labelwidth={80}
                                 />
                                 </FormControl>
@@ -145,180 +112,8 @@ useEffect(()=>{
                                 </FormControl>
                         </div>
                         <div style={{ margin: '0 auto', marginTop: '30px', width: '300px', textAlign: 'center' }}>
-                        <Button onClick={async()=>{
- // const a =  await navigator.serial.requestPort();
-    /*    await navigator.usb.getDevices().then((devices)=>{
-          //
-          devices.forEach((device)=>{
-            console.log('device name is : ',device.productName);
-            console.log('device vendor id: ', device);
-          })
-        }).catch((err)=>{
-          console.log('err is :', err);
-        })*/
-        await navigator.geolocation.getCurrentPosition((position)=> {
-          console.log("Latitude is :", position.coords.latitude);
-          console.log("Longitude is :", position.coords.longitude);
-        });
-        await navigator.usb.requestDevice({ filters: [{ path: '/dev/bus/' }] }).then(async(selectedDevice)=>{
-         const device = selectedDevice;
-         console.log('device is: ', device);
-         await device.open().then(()=>{
-          console.log('zero');
-           if(device.configuration===null){
-             console.log('one');
-             return device.selectConfiguration(1);
-           }
-         }).then(()=>{
-          console.log('two');
-           var configurationInterfaces = device.configuration.interfaces;
-           configurationInterfaces.forEach(element => {
-             element.alternates.forEach(elementalt => {
-               if(elementalt.interfaceClass===0xff){
-                console.log('three', elementalt);
-                 setInterfaceNumber(elementalt.interfaceNumber);
-                 elementalt.endpoints.forEach(elementendpoint => {
-                   if (elementendpoint.direction === 'out'){
-                    console.log('four', elementendpoint);
-                    console.log('fournew', interfaceNumber);
-                     setEndpointOut(elementendpoint.endpointNumber);
-                   }
-                   if (elementendpoint.direction === 'in'){
-                    console.log('five', elementendpoint);
-                    console.log('fivenew', interfaceNumber);
-                     setEndpointIn(elementendpoint.endpointNumber);
-                   }
-                 })
-               }
-             })
-           })
-         })
-         await device.claimInterface(0).then(()=> {
-           console.log('sixnew');
-           console.log('seven');
-           // device.selectAlternateInterface(interfaceNumber,0)
-            device.selectAlternateInterface(0,0).then((d)=>{
-              //
-            console.log('nine');
-            if(endpointIn!=null){
-              //
-              console.log('endpointin', endpointIn);
-              device.transferIn(endpointIn,64).then((e)=>{
-                //
-            console.log('ten');
-              const decoder = new TextDecoder();
-              console.log('Received: ' + decoder.decode(e.data));
-              })
-            } else {
-              console.log('endpointIn in null', endpointIn);
-            }
-            })
-         })
-         
-         
-         /*.then(()=> {
-           if(interfaceNumber===null){
-            console.log('six');
-            device.claimInterface(0).then(()=> console.log('sixnew')).catch((err)=> console.log('err is: ', err))
-            // device.claimInterface(interfaceNumber)
-           }
-         }).then(()=> {
-          console.log('seven');
-          // device.selectAlternateInterface(interfaceNumber,0)
-           device.selectAlternateInterface(0,0)
-         }).then((d)=>{
-            //
-          console.log('nine');
-          if(endpointIn!=null){
-            //
-            console.log('endpointin', endpointIn);
-            device.transferIn(endpointIn,64).then((e)=>{
-              //
-          console.log('ten');
-            const decoder = new TextDecoder();
-            console.log('Received: ' + decoder.decode(e.data));
-            })
-          } else {
-            console.log('endpointIn in null', endpointIn);
-          }
-          })*/
-        /* await device.selectConfiguration(1).then(()=> console.log('selectConfiguration'));
-         await device.claimInterface().then(()=> console.log('claimInterface')).catch((err)=>{
-           alert(err);
-         })
-         await device.controlTransferOut({
-           //
-           requestType: 'class',
-           recipient: 'interface',
-           request: 0x22,
-           value: 0x01,
-           index: 0x02
-         }).then((d)=>{
-           //
-           console.log('control transfer out success')
-           d.transferIn(5,64).then((e)=>{
-             //
-           const decoder = new TextDecoder();
-           console.log('Received: ' + decoder.decode(e.data));
-           })
-         })*/
-         /*
-         
-         .then((b)=>{
-           console.log('select config success')
-            b.claimInterface(1).then((c)=>{
-              //
-              console.log('claim interface success')
-              c.controlTransferOut({
-                //
-                requestType: 'class',
-                recipient: 'interface',
-                request: 0x22,
-                value: 0x01,
-                index: 0x02
-              }).then((d)=>{
-                //
-                console.log('control transfer out success')
-                d.transferIn(5,64).then((e)=>{
-                  //
-                const decoder = new TextDecoder();
-                console.log('Received: ' + decoder.decode(e.data));
-                })
-              })
-            })
-         })*/
-         //return device.open()
-       })
-     /*  .then((device) => device.selectConfiguration(1)) // Select configuration #1 for the device.
-       .then((device) => device.claimInterface(1)) // Request exclusive control over interface #2.
-       .then((device) => device.controlTransferOut({
-           requestType: 'class',
-           recipient: 'interface',
-           request: 0x22,
-           value: 0x01,
-           index: 0x02})) // Ready to receive data
-       .then((device) => device.transferIn(5, 64)) // Waiting for 64 bytes of data from endpoint #5.
-       .then(result => {
-         const decoder = new TextDecoder();
-         console.log('Received: ' + decoder.decode(result.data));
-       })*/
-       .catch(error => { console.error(error); });
-        //await a.open();
-                           signin({ username: email, password: password })
-                         /*   await axios.post(`http://13.233.138.227:8080/puc-certificate-services/login?username=${email}&password=${password}`).then((response)=>{
-                                console.log('resp', response);
-                                if(response.data==='success'){
-                                   //set token
-                                    setPassword('');
-                                    setEmail('');
-                                } else {
-                                    setPassword('');
-                                    setEmail('');
-                                    alert(`err occurred`);
-                                }
-                            }).catch((err)=>{
-                                alert('error occurred')
-                            });*/
+                        <Button onClick={()=>{
+                           login({ username, password })
                         }} style={{ backgroundColor:mode==='Light Mode' ? '#7F7F7F' :   '#252526', borderColor:mode==='Light Mode' ? '#FAFAFA' : '#252526', width: '300px', height: '40px', }}>Continue</Button>
                         <div style={{ fontSize: '13px', color:mode==='Light Mode' ? '#000000' :   '#ffffff', marginTop: '10px' }} className="text-center">By continuing, you agree to <span style={{ fontSize: '13px', color:mode==='Light Mode' ? '#000000' :   '#ffffff', textDecorationLine: 'underline' }} onClick={()=>{
                             //
