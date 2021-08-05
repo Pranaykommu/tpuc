@@ -6,7 +6,8 @@ import { Context as AuthContext } from '../context/AuthContext';
 const instance = axios.create({
   //baseURL: 'http://f925f9d7ddf5.ngrok.io/'
   //baseURL: 'http://13.233.138.227:8080/mis-web-app'
-  baseURL: 'http://3.109.78.174:8080/puc-certificate-services'
+ //baseURL: 'http://3.109.78.174:8080/puc-certificate-services',
+  baseURL: 'https://0b20huihu3.execute-api.ap-south-1.amazonaws.com'
 });
 
 //const { state: { token } } = useContext(AuthContext)

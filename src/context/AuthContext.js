@@ -47,7 +47,7 @@ const authReducer = (state, action) => {
 const login = dispatch => async ({ username, password }) => {
   try {
     await localStorage.removeItem('token');
-    const response = await tracker.post(`/login?username=${username}&password=${password}`);
+    const response = await tracker.post(`/puc-certificate-services/login?username=${username}&password=${password}`);
    if (response.headers.authorization.length>8){
      const toke = response.headers.authorization.split('Bearer ').pop();
      console.log('toke is: ',toke );
